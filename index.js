@@ -60,13 +60,11 @@ app.get('/fetchUserItems', async(req, res) => {
     const userId = 1 //Todo implement as sessionId
     
     let { data: items, error } = await supabase
-    .from('inventory')
-    .select(`
-        id,
-        owner,
-        items(id,item_name,item_size,item_description)
-    `)
+    .from('user_items')
+    .select()
     .eq('owner',userId);
+
+    console.log(items)
 
     if(error){
         console.log(error)
