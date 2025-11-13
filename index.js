@@ -17,20 +17,25 @@ app.use(e.json()); //To parse json objects on requests
 /**
  * Post new costume to database
  */
-app.post('/addItemToDatabase', async (req,res) => {
+app.post('/addUserItem', async (req,res) => {
 
-    const {userId} = req.body;
+    const {name, description, size} = req.body;
+    const inventoryId = 1 //Todo implementer senere, når vi har session Id fra login
 
-    let { data: users, error } = await supabase
-    .from('users')
-    .select()
-    .eq('id', '1')
-    console.log(users)
+    const {data, error} = await supabase.from('items').insert([
+        {
+            item_name: name,
+            item_description: description,
+            item_size: size,
+            inventory_id: inventoryId,
+        }
+    ])
 
-    const {name,description,size} = req.body
-    console.log(req.body);
-    //const userId = req.body;
-
+    if(error){
+        console.log(error)
+        res.json({success: false, message: 'Unable to insert new costume'})
+    }
+    res.json({success: true, message: 'inserted costume'});
 })
 
 /**
