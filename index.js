@@ -2,6 +2,7 @@ import e from "express";
 import cors from 'cors';
 import { createClient } from '@supabase/supabase-js'
 import dotenv from 'dotenv';
+import cookieParser from 'cookie-parser';
 dotenv.config({ path: './supabase.env' });
 //const dotenv = dotenv.config();
 const supabaseUrl = 'https://kjtbrqhsvdakypduvhdp.supabase.co'
@@ -10,8 +11,13 @@ const supabase = createClient(supabaseUrl, supabaseKey)
 const app = e();
 const port = 3000;
 
-app.use(cors()) //To parse data from different origins (urls)
+app.use(cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+})) //To parse data from different origins (urls)
+
 app.use(e.json()); //To parse json objects on requests
+app.use(cookieParser()); //To parse cookies
 
 app.post('/signUp', async (req, res) => {
     const { email, password, name, age, studie } = req.body;
@@ -46,39 +52,75 @@ app.post('/signUp', async (req, res) => {
 
 app.post('/login', async (req, res) => {
 
-    const { email, password } = req.body;
+    try {
+        const { email, password } = req.body;
 
-    if (!email || !password) {
-        return res.status(400).json({ message: "Email or password is wrong" });
+        if (!email || !password) {
+            return res.status(400).json({ message: "Email or password is wrong" });
+        }
+
+        const { data, error } = await supabase.auth.signInWithPassword({
+            email,
+            password,
+        })
+
+        if (error) {
+            console.error("subabase login error:", error.message);
+            return res.status(400).json({ message: error.message });
+        }
+        const { user, session } = data;
+
+        if (!session || !session.access_token) {
+            console.error("No session returned from supabase");
+            return res
+                .status(500)
+                .json({ message: "No session returned from auth" });
+        }
+
+        return res
+            .cookie("sb_access_token", session.access_token, {
+                httpOnly: true,
+                secure: false, // Set to true if using HTTPS
+                sameSite: 'lax',
+                maxAge: 1000 * 60 * 60 // 1 time
+            })
+            .json({ message: "User logged in successfully" });
+    } catch (err) {
+        console.error("Unexpected error during login:", err);
+        return res.status(500).json({ message: "Internal server error" });
     }
 
-    const { data, error } = await supabase.auth.signInWithPassword({
-        email: email,
-        password: password
-    })
-
-
-    if (error) {
-        console.error("subabase login error:", error.message);
-        return res.status(400).json({ message: error.message });
-    }
-
-    return res.json({
+    /*return res.json({
         message: "User logged in successfully",
         user: data.user,
         session: data.session
-    });
+    });*/
 })
+
+async function authMiddleware(req, res, next) {
+    const token = req.cookies.sb_access_token;
+    if (!token) {
+        return res.status(401).json({ message: "Not logged in" });
+    }
+    const { data, error } = await supabase.auth.getUser(token);
+
+    if (error || !data.user) {
+        console.error("authMiddleware error:", error?.message);
+        return res.status(401).json({ message: "invalid session" });
+    }
+    req.user = data.user;
+    next();
+}
 
 /**
  * Post new costume to database
  */
-app.post('/addUserItem', async (req,res) => {
+app.post('/addUserItem', async (req, res) => {
 
-    const {name, description, size} = req.body;
+    const { name, description, size } = req.body;
     const inventoryId = 1 //Todo implementer senere, når vi har session Id fra login
 
-    const {data, error} = await supabase.from('items').insert([
+    const { data, error } = await supabase.from('items').insert([
         {
             item_name: name,
             item_description: description,
@@ -87,11 +129,11 @@ app.post('/addUserItem', async (req,res) => {
         }
     ])
 
-    if(error){
+    if (error) {
         console.log(error)
-        res.json({success: false, message: 'Unable to insert new costume'})
+        res.json({ success: false, message: 'Unable to insert new costume' })
     }
-    res.json({success: true, message: 'inserted costume'});
+    res.json({ success: true, message: 'inserted costume' });
 })
 
 /**
@@ -116,13 +158,13 @@ app.get('/fetchUserItems', async (req, res) => {
     const userId = 1 //Todo implement as sessionId
 
     let { data: items, error } = await supabase
-    .from('user_items')
-    .select()
-    .eq('owner',userId);
+        .from('user_items')
+        .select()
+        .eq('owner', userId);
 
     console.log(items)
 
-    if(error){
+    if (error) {
         console.log(error)
     }
 
