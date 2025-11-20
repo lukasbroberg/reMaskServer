@@ -76,7 +76,7 @@ app.post('/login', async (req, res) => {
 app.post('/addUserItem', async (req,res) => {
 
     const {name, description, size} = req.body;
-    const inventoryId = 1 //Todo implementer senere, når vi har session Id fra login
+    const inventoryId = 3 //Todo implementer senere, når vi har session Id fra login
 
     const {data, error} = await supabase.from('items').insert([
         {
@@ -103,6 +103,7 @@ app.get('/fetchNewlyItems', async (req, res) => {
         .select()
 
     if (error) {
+        res.json({success: false, message: 'unable to get newest posted costumes'})
         console.log(error);
     }
 
@@ -113,16 +114,14 @@ app.get('/fetchNewlyItems', async (req, res) => {
  * To fetch own user items based on session id (mangler sessionId fra login)
  */
 app.get('/fetchUserItems', async (req, res) => {
-    const userId = 1 //Todo implement as sessionId
-
+    const userId = 3 //req.session.id... Todo implement as sessionId
     let { data: items, error } = await supabase
     .from('user_items')
     .select()
     .eq('owner',userId);
 
-    console.log(items)
-
     if(error){
+        res.json({success: false, message: 'unable to get users costumes'})
         console.log(error)
     }
 
@@ -144,13 +143,65 @@ app.get('/fetchUserItems/:inventoryId', async (req, res) => {
         .eq('inventory_id', inventoryId)
 
     if (error) {
+        res.json({success: false, message: 'unable to get newest posted costumes'})
         console.log(error)
     }
 
     res.json({ success: true, items: items });
 })
 
+/**
+ * Trades
+ */
+app.post('/trades/initiateTrade', async(req, res) => {
+    const {offer, receive, toUser} = req.body;
+    const userId = 3; //req.session... todo later
+    console.log(offer+" "+receive+" "+toUser);
+})
 
+app.get('/trades/ongoingTrades/inbound', async(req, res) => {
+    const userId = 3; //req.session.id... todo later
+
+    const {data, error} = await supabase
+    .from('tradeoffer_items_view')
+    .select()
+    .eq('user_to',userId);
+
+    if(error){
+        console.log(error)
+        res.json({success: false, message: 'Unable to get inbound trade offers'})
+    }
+
+    console.log(data)
+
+    res.json({success: true, inboundTrades: data});
+})
+
+app.get('/trades/ongoingTrades/outbound', async(req, res) => {
+    const userId = 3; //req.session.id... todo later
+
+    const {data, error} = await supabase
+    .from('tradeoffer_items_view')
+    .select()
+    .eq('user_from',userId);
+
+    if(error){
+        console.log(error)
+        res.json({success: false, message: 'Unable to get outbound trade offers'})
+    }
+    console.log("outbound")
+    console.log(data)
+
+    res.json({success: true, outboundTrades: data});
+})
+
+app.post('/trades/ongoingTrades/accept/:id', async(req, res) => {
+    const tradeId = req.params.id;
+})
+
+app.post('/trades/ongoingTrades/decline/:id', async(req, res) => {
+    const tradeId = req.params.id;
+})
 
 /**
  * Start server
