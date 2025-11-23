@@ -1,10 +1,13 @@
 import InventoryModel from "../model/InventoryModel.js"
 
+const _userId = 3
+const _inventoryId = 3
+
 const inventoryController = {
     addItemToInventory: async(req, res) => {
 
         const {name, description, size} = req.body;
-        const inventoryId = 4 //Todo implementer senere, når vi har session Id fra login
+        const inventoryId = _inventoryId //Todo implementer senere, når vi har session Id fra login
 
         const inventoryModel = new InventoryModel();
         try{
@@ -21,7 +24,7 @@ const inventoryController = {
     },
     
     fetchUserItems: async(req,res) => {
-        const userId = 4 //req.session.id... Todo implement as sessionId
+        const userId = _inventoryId //req.session.id... Todo implement as sessionId
 
         var inventoryModel = new InventoryModel();
         try{

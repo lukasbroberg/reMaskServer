@@ -3,6 +3,9 @@ import supabase from '../supabase.js';
 import TradeController from '../controller/TradeController.js';
 const router = e.Router();
 
+const _userId = 3
+const _inventoryId = 3
+
 /**
  * Trades
  */
@@ -19,7 +22,7 @@ router.post('/initiateTrade/:requestedItemId', async(req, res) => {
 })
 
 router.get('/ongoingTrades/inbound', async(req, res) => {
-    const userId = 4; //req.session.id... todo later
+    const userId = _userId; //req.session.id... todo later
 
     const {data, error} = await supabase
     .from('tradeoffer_items_view')
@@ -37,7 +40,7 @@ router.get('/ongoingTrades/inbound', async(req, res) => {
 })
 
 router.get('/ongoingTrades/outbound', async(req, res) => {
-    const userId = 4; //req.session.id... todo later
+    const userId = _userId; //req.session.id... todo later
 
     const {data, error} = await supabase
     .from('tradeoffer_items_view')
@@ -54,12 +57,52 @@ router.get('/ongoingTrades/outbound', async(req, res) => {
     res.json({success: true, outboundTrades: data});
 })
 
-router.post('/ongoingTrades/accept/:id', async(req, res) => {
-    const tradeId = req.params.id;
+router.patch('/ongoingTrades/accept/:tradeId', async(req, res) => {
+    const tradeId = req.params.tradeId;
+
+    const {data, error} = await supabase
+    .from('trades')
+    .update({status: 'accepted'})
+    .eq('id',tradeId);
+
+    if(error){
+        console.log(error)
+        res.json({success: false, message: 'unable to update tradeoffer'})
+    }
+
+    return res.json({success: true, message: 'Accepted trade offer'});
 })
 
-router.post('/ongoingTrades/decline/:id', async(req, res) => {
-    const tradeId = req.params.id;
+router.patch('/ongoingTrades/decline/:tradeId', async(req, res) => {
+    const tradeId = req.params.tradeId;
+
+    const {data, error} = await supabase
+    .from('trades')
+    .update({status: 'declined'})
+    .eq('id',tradeId);
+
+    if(error){
+        console.log(error)
+        res.json({success: false, message: 'unable to update tradeoffer'})
+    }
+
+    return res.json({success: true, message: 'declined trade offer'});
+})
+
+router.delete('/ongoingTrades/delete/:tradeId', async(req, res) => {
+    const tradeId = req.params.tradeId;
+
+    const {data, error} = await supabase
+    .from('trades')
+    .delete()
+    .eq('id',tradeId);
+
+    if(error){
+        console.log(error)
+        return res.json({success: false, message: 'unable to delete trade offer'})
+    }
+
+    return res.json({success: true, message: 'trade offer deleted'});
 })
 
 export const tradeRoutes = router;

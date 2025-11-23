@@ -2,10 +2,12 @@ import InventoryModel from "../model/InventoryModel.js";
 import TradeModel from "../model/TradeModel.js";
 import supabase from '../supabase.js';
 
+const _userId = 3
+
 const TradeController = {
     initiateTradeOffer: async (req, res) => {
         const requestedItemId = req.params.requestedItemId;
-        const user_fromId = 4 //req.session.id todo later
+        const user_fromId = _userId //req.session.id todo later
         const {offerItems, toInventory} = req.body;
         
         const inventoryModel = new InventoryModel();
