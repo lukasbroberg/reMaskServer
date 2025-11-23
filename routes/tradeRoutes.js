@@ -7,16 +7,19 @@ const router = e.Router();
  * Trades
  */
 router.post('/initiateTrade/:requestedItemId', async(req, res) => {
-    try{
-        TradeController.initiateTradeOffer(req, res);
+    await TradeController.initiateTradeOffer(req, res);
+    
+    /*try{
+        const offer = await TradeController.initiateTradeOffer(req, res);
+        return res.json({success: true})
     }catch(error){
         console.log(error);
         return res.json({success: false, message: error});
-    }
+    }*/
 })
 
 router.get('/ongoingTrades/inbound', async(req, res) => {
-    const userId = 3; //req.session.id... todo later
+    const userId = 4; //req.session.id... todo later
 
     const {data, error} = await supabase
     .from('tradeoffer_items_view')
@@ -34,7 +37,7 @@ router.get('/ongoingTrades/inbound', async(req, res) => {
 })
 
 router.get('/ongoingTrades/outbound', async(req, res) => {
-    const userId = 3; //req.session.id... todo later
+    const userId = 4; //req.session.id... todo later
 
     const {data, error} = await supabase
     .from('tradeoffer_items_view')

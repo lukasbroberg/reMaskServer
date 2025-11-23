@@ -4,7 +4,7 @@ const inventoryController = {
     addItemToInventory: async(req, res) => {
 
         const {name, description, size} = req.body;
-        const inventoryId = 3 //Todo implementer senere, når vi har session Id fra login
+        const inventoryId = 4 //Todo implementer senere, når vi har session Id fra login
 
         const inventoryModel = new InventoryModel();
         try{
@@ -21,7 +21,7 @@ const inventoryController = {
     },
     
     fetchUserItems: async(req,res) => {
-        const userId = 3 //req.session.id... Todo implement as sessionId
+        const userId = 4 //req.session.id... Todo implement as sessionId
 
         var inventoryModel = new InventoryModel();
         try{
