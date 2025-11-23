@@ -51,7 +51,6 @@ const TradeController = {
 
         //Insert the requested item in trade
         const insertItemRequest_receive = await tradeModel.insertNewTradeItem(requestedItemId,"receive",tradeId);
-        console.log("request insert succesful");
         return res.json({success: true, message: 'Offer created'});
     },
 
