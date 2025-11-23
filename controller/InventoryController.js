@@ -1,7 +1,7 @@
 import InventoryModel from "../model/InventoryModel.js"
 
-const _userId = 3
-const _inventoryId = 3
+const _userId = 4
+const _inventoryId = 4
 
 const inventoryController = {
     addItemToInventory: async(req, res) => {

@@ -37,6 +37,65 @@ class TradeModel{
         return 
     }
 
+    async selectInboundFromUserId(userId){
+        const {data, error} = await supabase
+        .from('tradeoffer_items_view')
+        .select()
+        .eq('user_to',userId);
+    
+        if(error){
+            throw new Error(error.message);
+        }
+
+        return data;
+    }
+
+    async selectOutboundFromUserId(userId){
+        const {data, error} = await supabase
+        .from('tradeoffer_items_view')
+        .select()
+        .eq('user_from',userId);
+
+        if(error){
+            throw new Error(error.message);
+        }
+        return data;
+    }
+
+    async acceptTrade(tradeId){
+        const {data, error} = await supabase
+        .from('trades')
+        .update({status: 'accepted'})
+        .eq('id',tradeId);
+
+        if(error){
+            throw new Error(error.message);
+        }
+    }
+
+    async declineTrade(tradeId){
+        const {data, error} = await supabase
+        .from('trades')
+        .update({status: 'declined'})
+        .eq('id',tradeId);
+
+        if(error){
+            throw new Error(error.message);
+        }
+        return data;
+    }
+
+    async deleteTrade(tradeId){
+        const {data, error} = await supabase
+        .from('trades')
+        .delete()
+        .eq('id',tradeId);
+
+        if(error){
+            throw new Error(error.message);
+        }
+    }
+
 }
 
 export default TradeModel;

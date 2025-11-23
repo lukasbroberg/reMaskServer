@@ -2,7 +2,7 @@ import InventoryModel from "../model/InventoryModel.js";
 import TradeModel from "../model/TradeModel.js";
 import supabase from '../supabase.js';
 
-const _userId = 3
+const _userId = 4
 
 const TradeController = {
     initiateTradeOffer: async (req, res) => {
@@ -54,6 +54,65 @@ const TradeController = {
         console.log("request insert succesful");
         return res.json({success: true, message: 'Offer created'});
     },
+
+    getInboundOffersFromUserId: async(req, res) => {
+        const userId = _userId; //req.session.id... todo later
+        const tradeModel = new TradeModel();
+
+        try{
+            const inboundTrades = await tradeModel.selectInboundFromUserId(userId);
+            res.json({success: true, inboundTrades: inboundTrades});
+        }catch(error){
+            res.json({success: false, message: 'Unable to get inbound trade offers'})
+        }
+    
+    },
+
+    getOutboundOffersFromUserId: async(req, res) => {
+        const userId = _userId; //req.session.id... todo later
+        const tradeModel = new TradeModel();
+        try{
+            const outboundTrades = await tradeModel.selectOutboundFromUserId(userId);
+            res.json({success: true, outboundTrades: outboundTrades});
+        }catch(error){
+            res.json({success: false, message: 'Unable to get outbound trade offers'})
+        }
+    },
+
+    acceptOffer: async(req, res) => {
+        const tradeId = req.params.tradeId;
+        const tradeModel = new TradeModel();
+        try{
+            const acceptRequest = await tradeModel.acceptTrade(tradeId);
+            return res.json({success: true, message: 'Accepted trade offer'});
+        }catch(error){
+            res.json({success: false, message: 'unable to update tradeoffer'})
+        }
+    },
+
+    declineOffer: async(req, res) => {
+        const tradeId = req.params.tradeId;
+        const tradeModel = new TradeModel();
+
+        try {
+            const declineRequest = await tradeModel.declineTrade(tradeId);
+            return res.json({success: true, message: 'declined trade offer'});
+        } catch (error) {
+            res.json({success: false, message: 'unable to update tradeoffer'})
+        }
+    },
+
+    deleteOffer: async(req, res) => {
+        const tradeId = req.params.tradeId;
+        const tradeModel = new TradeModel();
+
+        try{
+            const deleteRequest = await tradeModel.deleteTrade(tradeId);
+            return res.json({success: true, message: 'trade offer deleted'});
+        }catch(error){
+            return res.json({success: false, message: 'unable to delete trade offer'})
+        }
+    }
 };
 
 export default TradeController;
