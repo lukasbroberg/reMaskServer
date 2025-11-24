@@ -7,6 +7,7 @@ import { itemRouter } from "./routes/itemRoutes.js";
 import { inventoryRouter } from "./routes/inventoryRoutes.js";
 import cookieParser from 'cookie-parser';
 import { chatRoutes } from "./routes/chatRoutes.js";
+import { ratingRoutes } from "./routes/ratingRoutes.js";
 const app = e();
 const port = 3000;
 
@@ -20,11 +21,12 @@ app.use(cookieParser()); //To parse cookies
 
 //Trading routes
 //app.use(authMiddleware); //Fjern kommentar, når den skal bruges
-app.use('/user',userRoutes)
+app.use('/user', userRoutes)
 app.use('/chat', chatRoutes)
-app.use('/trades',tradeRoutes)
-app.use('/items',itemRouter);
-app.use('/inventory',inventoryRouter);
+app.use('/trades', tradeRoutes)
+app.use('/items', itemRouter);
+app.use('/inventory', inventoryRouter);
+app.use('/ratings', ratingRoutes);
 
 async function authMiddleware(req, res, next) {
     const token = req.cookies.sb_access_token;

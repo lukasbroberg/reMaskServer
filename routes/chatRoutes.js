@@ -1,5 +1,6 @@
 import e from "express";
 import inventoryController from "../controller/InventoryController.js";
+import supabase from '../supabase.js';
 
 const router = e.Router();
 
