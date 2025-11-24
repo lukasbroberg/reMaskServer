@@ -2,7 +2,7 @@ import InventoryModel from "../model/InventoryModel.js";
 import TradeModel from "../model/TradeModel.js";
 import supabase from '../supabase.js';
 
-const _userId = 4
+const _userId = 3
 
 const TradeController = {
     initiateTradeOffer: async (req, res) => {
@@ -57,7 +57,6 @@ const TradeController = {
     getInboundOffersFromUserId: async(req, res) => {
         const userId = _userId; //req.session.id... todo later
         const tradeModel = new TradeModel();
-
         try{
             const inboundTrades = await tradeModel.selectInboundFromUserId(userId);
             res.json({success: true, inboundTrades: inboundTrades});
