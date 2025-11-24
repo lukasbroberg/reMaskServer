@@ -12,11 +12,11 @@ router.get('/fetchAllItems', async (req, res) => {
         .select()
 
     if (error) {
-        res.json({success: false, message: 'unable to get newest posted costumes'})
         console.log(error);
+        return res.json({success: false, message: 'unable to get newest posted costumes'})
     }
 
-    res.json({ success: true, costumes: items });
+    return res.json({ success: true, costumes: items });
 })
 
 export const itemRouter = router;

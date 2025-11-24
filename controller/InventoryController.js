@@ -12,7 +12,6 @@ const inventoryController = {
         const inventoryModel = new InventoryModel();
         try{
             const addItem = await inventoryModel.addItemToInventory({name, description, size}, inventoryId)
-            console.log("vi nåede hertil")
             if(addItem){
                 return res.json({success: true, message: 'Item added to inventory'});
                 
@@ -31,6 +30,7 @@ const inventoryController = {
             const userItems = await inventoryModel.selectUserItemsFromId(userId);
             return res.json({ success: true, costumes: userItems })
         }catch(error){
+            console.log(error);
             return res.json({success: false, message: error.message});
         }
 
