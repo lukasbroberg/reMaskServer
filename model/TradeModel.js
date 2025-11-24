@@ -52,7 +52,7 @@ class TradeModel{
 
     async selectOutboundFromUserId(userId){
         const {data, error} = await supabase
-        .from('tradeoffer_items_view')
+        .from('trade_items_overview')
         .select()
         .eq('user_from',userId);
 
@@ -94,6 +94,29 @@ class TradeModel{
         if(error){
             throw new Error(error.message);
         }
+    }
+
+    async insertOnTradeReceived(tradeId, userId){
+        const {data, error} = await supabase
+        .from('trade_items_received')
+        .insert({tradeId: tradeId, userId: userId})
+
+        if(error){
+            throw new Error(error.message);
+        }
+    }
+
+    async selectTradeItemsReceived(userId){
+        const {data, error} = await supabase
+        .from('trade_items_received')
+        .select('tradeId')
+        .eq('userId',userId);
+
+        if(error){
+            throw new Error(error.message);
+        }
+
+        return data;
     }
 
 }

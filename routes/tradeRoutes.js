@@ -41,4 +41,12 @@ router.delete('/ongoingTrades/delete/:tradeId', async(req, res) => {
     await TradeController.deleteOffer(req, res);
 })
 
+router.post('/confirm/:tradeId',async(req,res) => {
+    await TradeController.confirmReceivedTrades(req, res);
+})
+
+router.get('/confirm',async(req,res) => {
+    await TradeController.getConfirmedTrades(req, res);
+})
+
 export const tradeRoutes = router;

@@ -59,9 +59,9 @@ const TradeController = {
         const tradeModel = new TradeModel();
         try{
             const inboundTrades = await tradeModel.selectInboundFromUserId(userId);
-            res.json({success: true, inboundTrades: inboundTrades});
+            return res.json({success: true, inboundTrades: inboundTrades});
         }catch(error){
-            res.json({success: false, message: 'Unable to get inbound trade offers'})
+            return res.json({success: false, message: 'Unable to get inbound trade offers'})
         }
     
     },
@@ -71,9 +71,9 @@ const TradeController = {
         const tradeModel = new TradeModel();
         try{
             const outboundTrades = await tradeModel.selectOutboundFromUserId(userId);
-            res.json({success: true, outboundTrades: outboundTrades});
+            return res.json({success: true, outboundTrades: outboundTrades});
         }catch(error){
-            res.json({success: false, message: 'Unable to get outbound trade offers'})
+            return res.json({success: false, message: 'Unable to get outbound trade offers'})
         }
     },
 
@@ -109,6 +109,29 @@ const TradeController = {
             return res.json({success: true, message: 'trade offer deleted'});
         }catch(error){
             return res.json({success: false, message: 'unable to delete trade offer'})
+        }
+    },
+
+    confirmReceivedTrades: async(req, res) => {
+        const userId = _userId;
+        const tradeId = req.params.tradeId; //req.session.id... todo later
+        const tradeModel = new TradeModel();
+        try{
+            const confirmReceivedItems_req = await tradeModel.insertOnTradeReceived(tradeId, userId);
+            return res.json({success: true});
+        }catch(error){
+            return res.json({success: false, message: 'Unable to confirm received items'});
+        }
+    },
+
+    getConfirmedTrades: async(req, res) => {
+        const userId = _userId;
+        const tradeModel = new TradeModel();
+        try{
+            const getConfirmedTrades_req = await tradeModel.selectTradeItemsReceived(userId);
+            return res.json({success: true, confirmedTrades: getConfirmedTrades_req});
+        }catch(error){
+            return res.json({success: false, message: 'Unable to confirm received items'});
         }
     }
 };
