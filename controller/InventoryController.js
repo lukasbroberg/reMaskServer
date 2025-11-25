@@ -10,6 +10,21 @@ const inventoryController = {
         const inventoryId = _inventoryId //Todo implementer senere, når vi har session Id fra login
 
         const inventoryModel = new InventoryModel();
+
+
+            if (!name || !description || !size) {
+        return res.status(400).json({
+            success: false,
+            message: "Fields cannot be empty"
+        });
+    }
+
+    if (name.trim() === "" || description.trim() === "" || size.trim() === "") {
+        return res.status(400).json({
+            success: false,
+            message: "Fields cannot be empty"
+        });
+    }
         try{
             const addItem = await inventoryModel.addItemToInventory({name, description, size}, inventoryId)
             if(addItem){

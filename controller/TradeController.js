@@ -15,6 +15,33 @@ const TradeController = {
 
         const user_to = await inventoryModel.getOwnerIdFromInventoryId(toInventory);
         
+        // verify user_from exists
+        const { data: userFromExists } = await supabase
+            .from("users")
+            .select("id")
+            .eq("id", user_fromId)
+            .single();
+
+        if (!userFromExists) {
+            return res.status(400).json({
+                success: false,
+                message: "Sender user does not exist"
+            });
+        }
+
+        // verify user_to exists
+        const { data: userToExists } = await supabase
+            .from("users")
+            .select("id")
+            .eq("id", user_to)
+            .single();
+
+        if (!userToExists) {
+            return res.status(400).json({
+                success: false,
+                message: "Receiver user does not exist"
+            });
+        }
         //Early exits
         if(offerItems == []){
             return res.json({success: false, message: 'No items selected'});
@@ -111,6 +138,8 @@ const TradeController = {
             return res.json({success: false, message: 'unable to delete trade offer'})
         }
     }
+
+    
 };
 
 export default TradeController;
