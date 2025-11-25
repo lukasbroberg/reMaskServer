@@ -1,37 +1,11 @@
 import e from "express";
 import supabase from '../supabase.js';
+import userController from "../controller/UserController.js";
 
 const router = e.Router();
 
 router.post('/signUp', async (req, res) => {
-    const { email, password, name, age, studie } = req.body;
-
-    if (!email || !password) {
-        return res.status(400).json({ message: "Email and password are required" });
-    }
-
-    const { data, error } = await supabase.auth.signUp({
-        email: email,
-        password: password,
-        options: {
-            data: {
-                name: name,
-                age: age,
-                studie: studie
-            }
-        }
-    })
-    if (error) {
-        console.error("supabase signUp error:", error.message);
-        return res
-            .status(400)
-            .json({ message: error.message });
-    }
-
-    return res.status(201).json({
-        message: "User signed up successfully",
-        user: data.user
-    });
+    await userController.signup(req, res);
 })
 
 router.post('/login', async (req, res) => {
