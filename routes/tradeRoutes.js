@@ -11,14 +11,6 @@ const _inventoryId = 3
  */
 router.post('/initiateTrade/:requestedItemId', async(req, res) => {
     await TradeController.initiateTradeOffer(req, res);
-    
-    /*try{
-        const offer = await TradeController.initiateTradeOffer(req, res);
-        return res.json({success: true})
-    }catch(error){
-        console.log(error);
-        return res.json({success: false, message: error});
-    }*/
 })
 
 router.get('/ongoingTrades/inbound', async(req, res) => {
