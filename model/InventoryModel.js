@@ -46,8 +46,9 @@ class InventoryModel{
         .eq('owner',userId);
 
         if(error){
-            res.json({success: false, message: 'unable to get users costumes'})
-            console.log(error)
+            console.log(error.message)
+            throw new Error(error.message);
+            
         }
 
         return items;

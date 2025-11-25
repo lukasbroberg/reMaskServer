@@ -1,4 +1,5 @@
 import InventoryModel from "../model/InventoryModel.js"
+import supabase from "../supabase.js";
 
 const _userId = 3
 const _inventoryId = 3
@@ -23,7 +24,12 @@ const inventoryController = {
     },
     
     fetchUserItems: async(req,res) => {
-        const userId = _inventoryId //req.session.id... Todo implement as sessionId
+
+        if(!req.cookies.userId){
+            return res.status(401).json({success: false, message: 'unable to authorize user'});
+        }
+
+        const userId = req.cookies.userId
 
         var inventoryModel = new InventoryModel();
         try{
@@ -45,7 +51,8 @@ const inventoryController = {
             const inventoryItems = await inventoryModel.selectUserItemsFromId(inventoryId);
             return res.json({ success: true, items: inventoryItems });
         }catch(error){
-            return res.json({success: false, message: error.message})
+            console.log(error)
+            return res.json({success: false, message: 'unable to get users costumes'})
         }
     },
 

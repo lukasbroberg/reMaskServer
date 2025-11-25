@@ -2,12 +2,10 @@ import InventoryModel from "../model/InventoryModel.js";
 import TradeModel from "../model/TradeModel.js";
 import supabase from '../supabase.js';
 
-const _userId = 3
-
 const TradeController = {
     initiateTradeOffer: async (req, res) => {
         const requestedItemId = req.params.requestedItemId;
-        const user_fromId = _userId //req.session.id todo later
+        const user_fromId = req.cookies.userId;
         const {offerItems, toInventory} = req.body;
         
         const inventoryModel = new InventoryModel();
@@ -55,7 +53,7 @@ const TradeController = {
     },
 
     getInboundOffersFromUserId: async(req, res) => {
-        const userId = _userId; //req.session.id... todo later
+        const userId = req.cookies.userId; //req.session.id... todo later
         const tradeModel = new TradeModel();
         try{
             const inboundTrades = await tradeModel.selectInboundFromUserId(userId);
@@ -67,7 +65,7 @@ const TradeController = {
     },
 
     getOutboundOffersFromUserId: async(req, res) => {
-        const userId = _userId; //req.session.id... todo later
+        const userId = req.cookies.userId; //req.session.id... todo later
         const tradeModel = new TradeModel();
         try{
             const outboundTrades = await tradeModel.selectOutboundFromUserId(userId);
@@ -113,7 +111,7 @@ const TradeController = {
     },
 
     confirmReceivedTrades: async(req, res) => {
-        const userId = _userId;
+        const userId = req.cookies.userId;
         const tradeId = req.params.tradeId; //req.session.id... todo later
         const tradeModel = new TradeModel();
         try{
@@ -125,7 +123,7 @@ const TradeController = {
     },
 
     getConfirmedTrades: async(req, res) => {
-        const userId = _userId;
+        const userId = req.cookies.userId;
         const tradeModel = new TradeModel();
         try{
             const getConfirmedTrades_req = await tradeModel.selectTradeItemsReceived(userId);

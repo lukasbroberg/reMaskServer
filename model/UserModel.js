@@ -1,26 +1,80 @@
+import supabase from "../supabase.js";
+
 class UserModel{
-    async insertUser(email, password, name, age, studie){
-        
-        const { data, error } = await supabase.auth.signUp({
+    async authUserSignUp({email, password}){
+        const { data, error } = await supabase
+        .auth
+        .signUp({
             email: email,
             password: password,
-            options: {
-                data: {
-                    name: name,
-                    age: age,
-                    studie: studie
-                }
-            }
         })
 
         if(error){
             throw new Error(error.message);
         }
+
+        console.log(data)
+        return data;
     }
 
-    async selectPublicUser(user_email){
+    async insertNewUserOnUserTable({firstName, lastName, studie, UUID}){
+        const {data, error} = await supabase
+        .from('users')
+        .upsert({
+            firstName: firstName,
+            lastName: lastName,
+            studie: studie,
+            uuid: UUID,
+        })
+        .select();
 
+        if(error){
+            throw new Error(error.message);
+        }
+
+        return data;
     }
+
+    async authUserLogin(email, password){
+        const { data, error } = await supabase.auth.signInWithPassword({
+            email,
+            password,
+        })
+
+        if(error){
+            throw new Error(error.message);
+        }
+
+        return data;
+    }
+
+    async getUserFromAuthUUID(UUID){
+        const {data, error} = await supabase
+        .from('users')
+        .select()
+        .eq('uuid',UUID);
+
+        if(error){
+            console.log(error.message)
+            return new Error(error.message);
+        }
+
+        return data;
+    }
+
+    //GetUser (refreshes session)
+    async getCurrentUser(accessToken){
+        const {data, error} = await supabase
+        .auth
+        .getUser(accessToken)
+
+        if(error){
+            throw new Error(error.message);
+        }
+
+        return data;
+    }
+
 }
 
 export default UserModel;

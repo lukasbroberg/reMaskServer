@@ -29,6 +29,7 @@ app.use('/inventory', inventoryRouter);
 app.use('/ratings', ratingRoutes);
 
 async function authMiddleware(req, res, next) {
+    
     const token = req.cookies.sb_access_token;
     if (!token) {
         return res.status(401).json({ message: "Not logged in" });
