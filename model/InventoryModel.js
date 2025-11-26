@@ -73,17 +73,10 @@ class InventoryModel {
             .from('user_items')
             .select()
             .eq('owner', userId);
-
-        if (error) {
-            throw new Error(error.message);
-
-<<<<<<< HEAD
         if(error){
             console.log(error.message)
             throw new Error(error.message);
             
-=======
->>>>>>> imageItems
         }
 
         return items;
