@@ -76,7 +76,7 @@ app.post('/login', async (req, res) => {
 app.post('/addUserItem', async (req,res) => {
 
     const {name, description, size} = req.body;
-    const inventoryId = 1 //Todo implementer senere, når vi har session Id fra login
+    const inventoryId = 3 //Todo implementer senere, når vi har session Id fra login
 
     const {data, error} = await supabase.from('items').insert([
         {
@@ -93,6 +93,51 @@ app.post('/addUserItem', async (req,res) => {
     }
     res.json({success: true, message: 'inserted costume'});
 })
+
+app.delete('/deleteItem/:itemId', async (req, res) => {
+    
+    const itemId = req.params.itemId;
+    console.log(itemId)
+    //validate user id and that the user owns the item
+
+    const {data, error} = await supabase
+    .from('items')
+    .delete()
+    .eq('id', itemId);
+
+    if (error) {
+        console.log(error);
+        return res.json({
+            success: false, message: "Ikke muligt at slette opslag"
+        });
+
+    }
+
+    return res.json({
+        success: true, message: "Opslag er blevet slettet"
+    });
+})
+
+
+
+app.put('/updateItem/:itemId', async (req, res) => {
+    const itemId = req.params.itemId;
+    const {name, description, size}=req.body;
+
+    const {data, error} = await supabase
+        .from('items')
+        .update({
+            item_name: name,
+            item_description: description,
+            item_size: size
+        })
+        .eq('id', itemId)
+    if (error) {
+        console.log(error);
+        return res.json({success: false, message: "kunne ikke updatere opslag"});
+    }  
+    return res.json({success: true, message: "Opslag er blevet opdateret."})  
+});
 
 /**
  * Fetch all costumes from other users
@@ -113,7 +158,7 @@ app.get('/fetchNewlyItems', async (req, res) => {
  * To fetch own user items based on session id (mangler sessionId fra login)
  */
 app.get('/fetchUserItems', async (req, res) => {
-    const userId = 1 //Todo implement as sessionId
+    const userId = 3 //Todo implement as sessionId
 
     let { data: items, error } = await supabase
     .from('user_items')
