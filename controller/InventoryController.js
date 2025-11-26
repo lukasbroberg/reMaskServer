@@ -8,7 +8,7 @@ const inventoryController = {
     addItemToInventory: async(req, res) => {
 
         const {name, description, size} = req.body;
-        const inventoryId = _inventoryId //Todo implementer senere, når vi har session Id fra login
+        const inventoryId = req.cookies.inventoryId
 
         const inventoryModel = new InventoryModel();
         try{
@@ -67,9 +67,6 @@ const inventoryController = {
         catch(error){
             return res.status(400)({message: 'unable to get item'});
         }
-
-
-    
     }
 }
 

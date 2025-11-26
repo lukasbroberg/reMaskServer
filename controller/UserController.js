@@ -1,3 +1,4 @@
+import InventoryModel from "../model/InventoryModel.js";
 import UserModel from "../model/UserModel.js";
 import supabase from "../supabase.js";
 
@@ -32,12 +33,14 @@ const userController = {
     login: async (req, res) => {
         const { email, password } = req.body;
         const userModel = new UserModel();
+        const inventoryModel = new InventoryModel();
 
         if (!email || !password) {
             return res.status(400).json({ message: "Email or password is wrong" });
         }
         
         try{
+            //Login and create session
             const userLogin_request = await userModel.authUserLogin(email, password)
             const { user, session } = userLogin_request;
             const userUUID = user.id;
@@ -49,8 +52,8 @@ const userController = {
                     .json({ message: "No session returned from auth" });
             }
 
+            //Get user Id
             const userDataFromTable = await userModel.getUserFromAuthUUID(userUUID);
-            
             const userData = await {
                 id: userDataFromTable[0].id,
                 firstName: userDataFromTable[0].firstName,
@@ -58,7 +61,9 @@ const userController = {
                 studie: userDataFromTable[0].studie,
             };
 
-            
+            //Get inventoryId
+            const inventoryId = await inventoryModel.selectInventoryIdFromUserId(userData.id);
+            console.log(inventoryId.id);
             //Parse cookie with access_token on frontend for user's session 
             return res
                 .cookie("sb_access_token", session.access_token, {
@@ -68,6 +73,12 @@ const userController = {
                     maxAge: 1000 * 60 * 60 // 1 time
                 })
                 .cookie("userId", userData.id, {
+                    httpOnly: true,
+                    secure: false, // Set to true if using HTTPS
+                    sameSite: 'lax',
+                    maxAge: 1000 * 60 * 60 // 1 time
+                })
+                .cookie("inventoryId", inventoryId.id, {
                     httpOnly: true,
                     secure: false, // Set to true if using HTTPS
                     sameSite: 'lax',

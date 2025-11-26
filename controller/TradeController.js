@@ -4,6 +4,12 @@ import supabase from '../supabase.js';
 
 const TradeController = {
     initiateTradeOffer: async (req, res) => {
+        if(!req.cookies.userId || !req.cookies.sb_access_token){
+            return res
+                .status(401)
+                .json({success: false, message: 'Unable to create trade offers, when user is not signed in.'});
+        }
+
         const requestedItemId = req.params.requestedItemId;
         const user_fromId = req.cookies.userId;
         const {offerItems, toInventory} = req.body;

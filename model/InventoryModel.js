@@ -79,6 +79,19 @@ class InventoryModel{
         return item;
     }
 
+    async selectInventoryIdFromUserId(userId){
+        let {data, error} = await supabase
+            .from('inventory')
+            .select('id')
+            .eq('owner', userId);
+        
+        if(error){
+            throw new Error(error.message);
+        }
+        return data[0];
+
+    }
+
 }
 
 export default InventoryModel;
