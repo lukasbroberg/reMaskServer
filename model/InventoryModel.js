@@ -1,60 +1,95 @@
 import supabase from "../supabase.js";
 
-class InventoryModel{
+class InventoryModel {
     //Create tradeOffer (simplificer det her)
-    async getOwnerIdFromInventoryId(inventoryId){
-        let {data, error} = await supabase
+    async getOwnerIdFromInventoryId(inventoryId) {
+        let { data, error } = await supabase
             .from('inventory')
             .select('owner')
-            .eq('id',inventoryId);
+            .eq('id', inventoryId);
 
-        if(error){
+        if (error) {
             console.log(error);
         }
 
         const owner = data[0].owner
         return owner
     }
+    async addImageToStorage(image) {
+        const fileName = `${Date.now()}_${image.originalname}`;
 
-    async addItemToInventory(item, inventoryId){
+        const { data, error } = await supabase
+            .storage
+            .from('costume_images')
+            .upload(fileName, image.buffer, {
+                contentType: image.mimetype,
+            });
 
-        var {name, description, size} = item;
+        if (error) {
+            console.error('supabase upload error: ', error);
+            throw new Error(error.message);
+        }
 
-        const {data, error} = await supabase
-        .from('items')
-        .insert([
-            {
-                item_name: name,
-                item_description: description,
-                item_size: size,
-                inventory_id: inventoryId,
-            }
-        ])
-        .select();
+        const { data: publicData, error: publicError } = supabase
+            .storage
+            .from('costume_images')
+            .getPublicUrl(fileName);
 
-        if(error){
+        if (publicError) {
+            console.error('supabase get public url error: ', publicError);
+            throw new Error(publicError.message);
+        }
+
+        return publicData.publicUrl;
+
+    }
+
+    async addItemToInventory(item, inventoryId) {
+
+        var { name, description, size, imageUrl } = item;
+
+        const { data, error } = await supabase
+            .from('items')
+            .insert([
+                {
+                    item_name: name,
+                    item_description: description,
+                    item_size: size,
+                    inventory_id: inventoryId,
+                    image_url: imageUrl
+                }
+            ])
+            .select();
+
+        if (error) {
             throw new Error(error.message);
         }
 
         console.log(data)
     }
 
-    async selectUserItemsFromId(userId){
+    async selectUserItemsFromId(userId) {
         let { data: items, error } = await supabase
-        .from('user_items')
-        .select()
-        .eq('owner',userId);
+            .from('user_items')
+            .select()
+            .eq('owner', userId);
 
+        if (error) {
+            throw new Error(error.message);
+
+<<<<<<< HEAD
         if(error){
             console.log(error.message)
             throw new Error(error.message);
             
+=======
+>>>>>>> imageItems
         }
 
         return items;
     }
 
-    async selectItemsFromInventoryId(inventoryId){
+    async selectItemsFromInventoryId(inventoryId) {
         let { data: items, error } = await supabase
             .from('items')
             .select()
@@ -67,13 +102,13 @@ class InventoryModel{
         return items;
     }
 
-    async selectItemFromItemId(itemId){
-        let{ data: item, error } = await supabase
+    async selectItemFromItemId(itemId) {
+        let { data: item, error } = await supabase
             .from('items')
             .select()
-            .eq('id',itemId);
-        
-        if(error){
+            .eq('id', itemId);
+
+        if (error) {
             throw new Error(error.message);
         }
         return item;

@@ -1,15 +1,19 @@
 import e from "express";
 import supabase from '../supabase.js';
 import inventoryController from "../controller/InventoryController.js";
+import multer from "multer";
 
 const router = e.Router();
+const upload = multer(); // Initialize multer for handling multipart/form-data
 
 /**
  * Post new costume to database
  */
-router.post('/addUserItem', async (req,res) => {
-    await inventoryController.addItemToInventory(req, res);
-})
+router.post(
+    '/addUserItem',
+    upload.single('image'),
+    inventoryController.addItemToInventory
+);
 
 /**
  * To fetch own user items based on session id (mangler sessionId fra login)
@@ -28,7 +32,7 @@ router.get('/fetchItems/:inventoryId', async (req, res) => {
 /**
  * get item details from item Id
  */
-router.get('/getItem/:itemId', async(req,res) => {
+router.get('/getItem/:itemId', async (req, res) => {
     await inventoryController.fetchItemOnId(req, res);
 })
 
