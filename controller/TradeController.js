@@ -82,6 +82,9 @@ const TradeController = {
     },
 
     acceptOffer: async(req, res) => {
+        /**
+         * TODO: Verify its the correct user
+         */
         const tradeId = req.params.tradeId;
         const tradeModel = new TradeModel();
         try{
@@ -93,6 +96,10 @@ const TradeController = {
     },
 
     declineOffer: async(req, res) => {
+        /**
+         * TODO: Verify its the correct user
+         */
+
         const tradeId = req.params.tradeId;
         const tradeModel = new TradeModel();
 
@@ -105,6 +112,9 @@ const TradeController = {
     },
 
     deleteOffer: async(req, res) => {
+        /**
+         * TODO: Verify its the correct user
+         */
         const tradeId = req.params.tradeId;
         const tradeModel = new TradeModel();
 

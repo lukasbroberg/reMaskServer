@@ -3,12 +3,6 @@ import supabase from '../supabase.js';
 import TradeController from '../controller/TradeController.js';
 const router = e.Router();
 
-const _userId = 3
-const _inventoryId = 3
-
-/**
- * Trades
- */
 router.post('/initiateTrade/:requestedItemId', async(req, res) => {
     await TradeController.initiateTradeOffer(req, res);
 })

@@ -42,7 +42,7 @@ const inventoryController = {
 
         var inventoryModel = new InventoryModel();
         try {
-            const userItems = await inventoryModel.selectUserItemsFromId(inventoryid);
+            const userItems = await inventoryModel.selectUserItemsFromId(userId);
             return res.json({ success: true, costumes: userItems })
         } catch (error) {
             console.log(error);

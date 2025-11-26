@@ -15,9 +15,10 @@ class InventoryModel {
         const owner = data[0].owner
         return owner
     }
+
     async addImageToStorage(image) {
         const fileName = `${Date.now()}_${image.originalname}`;
-
+        console.log(image)
         const { data, error } = await supabase
             .storage
             .from('costume_images')
