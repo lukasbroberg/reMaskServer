@@ -40,11 +40,56 @@ async function authMiddleware(req, res, next) {
         console.error("authMiddleware error:", error?.message);
         return res.status(401).json({ message: "invalid session" });
     }
+
     req.user = data.user;
     next();
 }
 
 
+app.delete('/deleteItem/:itemId', async (req, res) => {
+    
+    const itemId = req.params.itemId;
+    console.log(itemId)
+    //validate user id and that the user owns the item
+
+    const {data, error} = await supabase
+    .from('items')
+    .delete()
+    .eq('id', itemId);
+
+    if (error) {
+        console.log(error);
+        return res.json({
+            success: false, message: "Ikke muligt at slette opslag"
+        });
+
+    }
+
+    return res.json({
+        success: true, message: "Opslag er blevet slettet"
+    });
+})
+
+
+
+app.put('/updateItem/:itemId', async (req, res) => {
+    const itemId = req.params.itemId;
+    const {name, description, size}=req.body;
+
+    const {data, error} = await supabase
+        .from('items')
+        .update({
+            item_name: name,
+            item_description: description,
+            item_size: size
+        })
+        .eq('id', itemId)
+    if (error) {
+        console.log(error);
+        return res.json({success: false, message: "kunne ikke updatere opslag"});
+    }  
+    return res.json({success: true, message: "Opslag er blevet opdateret."})  
+});
 
 /**
  * Start server
