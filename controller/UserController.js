@@ -42,10 +42,9 @@ const userController = {
         try{
             //Login and create session
             const userLogin_request = await userModel.authUserLogin(email, password)
-            const { user, session } = userLogin_request;
-            const userUUID = user.id;
+            const userUUID = userLogin_request.user.id;
 
-            if (!session || !session.access_token) {
+            if (!userLogin_request.session || !userLogin_request.session.access_token) {
                 console.error("No session returned from supabase");
                 return res
                     .status(500)
@@ -63,10 +62,9 @@ const userController = {
 
             //Get inventoryId
             const inventoryId = await inventoryModel.selectInventoryIdFromUserId(userData.id);
-            console.log(inventoryId.id);
             //Parse cookie with access_token on frontend for user's session 
             return res
-                .cookie("sb_access_token", session.access_token, {
+                .cookie("sb_access_token", userLogin_request.session.access_token, {
                     httpOnly: true,
                     secure: false, // Set to true if using HTTPS
                     sameSite: 'lax',
@@ -88,7 +86,7 @@ const userController = {
 
     
 
-        } catch (err) {
+        } catch (error) {
             console.error("subabase login error:", error.message);
             return res.status(400).json({ message: error.message });
         }

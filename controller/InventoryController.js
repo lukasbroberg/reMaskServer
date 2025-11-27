@@ -1,11 +1,16 @@
 import InventoryModel from "../model/InventoryModel.js"
 import supabase from "../supabase.js";
 
-const _userId = 3
-const _inventoryId = 3
-
 const inventoryController = {
     addItemToInventory: async (req, res) => {
+        console.log(req.cookies);
+
+        if(req.cookies.inventoryId==null || req.cookies.userId==null || req.cookies.sb_access_token==null){
+            console.log("error")
+            return res.status(401).json({message: 'user needs to be signed in to upload costumes'});
+        }
+
+        console.log(req.body)
 
         const {name, description, size} = req.body;
         const imageFile = req.file; // Multer adds the file to req.file

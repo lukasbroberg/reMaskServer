@@ -47,6 +47,8 @@ class InventoryModel {
 
     async addItemToInventory(item, inventoryId) {
 
+        
+
         var { name, description, size, imageUrl } = item;
 
         const { data, error } = await supabase
