@@ -68,7 +68,8 @@ router.post('/start', async (req, res) => {
 
 router.post('/message', async (req, res) => {
     try {
-        const { chatId, authorId, message } = req.body;
+        const { chatId, message } = req.body;
+        const authorId = req.cookies.userId;
 
         const { data, error } = await supabase
             .from('chat_messages')

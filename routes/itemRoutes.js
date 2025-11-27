@@ -23,7 +23,7 @@ router.get(`/fetchAllItems`, async (req, res) => {
         let { data: items, error } = await supabase
             .from('costumes')
             .select()
-            .ilike('item_name',searchParam)
+            .ilike('item_name','%'+searchParam+'%')
     
         if (error) {
             console.log(error);

@@ -94,7 +94,6 @@ const userController = {
 
     getCurrentUser: async(req, res) => {
         const userModel = new UserModel();
-
         if(!req.cookies.sb_access_token){
             return res.status(401).json({message: 'unable to authorize user'});
         }
@@ -102,10 +101,10 @@ const userController = {
         const access_token = req.cookies.sb_access_token
 
         try{
+
             const data = await userModel.getCurrentUser(access_token);
             const userUUID = data.user.id
             const userDataFromTable = await userModel.getUserFromAuthUUID(userUUID);
-            const userID = userDataFromTable.id;
             const userData = await {
                 id: userDataFromTable[0].id,
                 firstName: userDataFromTable[0].firstName,
@@ -113,20 +112,21 @@ const userController = {
                 studie: userDataFromTable[0].studie,
             };
 
+
             return res
-                .cookie("sb_access_token", session.access_token, {
+                .cookie("sb_access_token", access_token, {
                     httpOnly: true,
                     secure: false, // Set to true if using HTTPS
                     sameSite: 'lax',
                     maxAge: 1000 * 60 * 60 // 1 time
                 })
-                .cookie("userId", userID, {
+                .cookie("userId", userData.id, {
                     httpOnly: true,
                     secure: false, // Set to true if using HTTPS
                     sameSite: 'lax',
                     maxAge: 1000 * 60 * 60 // 1 time
                 })
-                .json({success: true, data: userData});
+                .json({success: true, user: userData});
         }catch(error){
             return res.status(401).json({message: 'unable to authorize user'});
         }
