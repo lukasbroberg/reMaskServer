@@ -19,7 +19,6 @@ const TradeController = {
 
         const user_to = await inventoryModel.getOwnerIdFromInventoryId(toInventory);
         
-        //Early exits
         if(offerItems == []){
             return res.json({success: false, message: 'No items selected'});
         }
@@ -89,9 +88,21 @@ const TradeController = {
         const tradeModel = new TradeModel();
         try{
             const acceptRequest = await tradeModel.acceptTrade(tradeId);
-            return res.json({success: true, message: 'Accepted trade offer'});
-        }catch(error){
-            res.json({success: false, message: 'unable to update tradeoffer'})
+            if (!acceptRequest) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Trade does not exist"
+            });
+        }
+            return res.json({
+                success: true, 
+                message: 'Accepted trade offer'});
+        }
+        
+        catch(error){
+            res.status(400).json({
+                success: false,
+                message: 'unable to update tradeoffer'})
         }
     },
 
@@ -148,6 +159,8 @@ const TradeController = {
             return res.json({success: false, message: 'Unable to confirm received items'});
         }
     }
+
+    
 };
 
 export default TradeController;
