@@ -9,7 +9,7 @@ class InventoryModel {
             .eq('id', inventoryId);
 
         if (error) {
-            console.log(error);
+            throw new Error(error.message);
         }
 
         const owner = data[0].owner
@@ -18,7 +18,6 @@ class InventoryModel {
 
     async addImageToStorage(image) {
         const fileName = `${Date.now()}_${image.originalname}`;
-        console.log(image)
         const { data, error } = await supabase
             .storage
             .from('costume_images')
@@ -47,7 +46,7 @@ class InventoryModel {
 
     async addItemToInventory(item, inventoryId) {
 
-        
+
 
         var { name, description, size, imageUrl } = item;
 
@@ -120,6 +119,35 @@ class InventoryModel {
             throw new Error(error.message);
         }
         return data[0];
+
+    }
+
+    async updateItemFromId(itemId, item){
+        const {data, error} = await supabase
+            .from('items')
+            .update({
+                item_name: item.name,
+                item_description: item.description,
+                item_size: item.size
+            })
+            .eq('id', itemId)
+        if (error) {
+            throw new Error(error.message);
+        }  
+        return data;
+    }
+
+    async deleteItemOnId(itemId){
+        const {data, error} = await supabase
+        .from('items')
+        .delete()
+        .eq('id', itemId);
+
+        if (error) {
+            throw new Error(error.message);
+        }
+        
+        return data;
 
     }
 

@@ -4,12 +4,13 @@ import supabase from "../supabase.js";
 
 const userController = {
     signup: async (req, res) => {
+
+        if(!req.body){
+            return res.status(400).json({ message: "Enter credentials to continue" });
+        }
+
         const { email, password, firstName, lastName, studie } = req.body;
         var new_user = {};
-
-        if (!email || !password) {
-            return res.status(400).json({ message: "Email and password are required" });
-        }
         const userModel = new UserModel()
 
         try{
@@ -31,13 +32,14 @@ const userController = {
     },
 
     login: async (req, res) => {
+
+        if(!req.body){
+            return res.status(400).json({ message: "Enter credentials to continue" });
+        }
+
         const { email, password } = req.body;
         const userModel = new UserModel();
         const inventoryModel = new InventoryModel();
-
-        if (!email || !password) {
-            return res.status(400).json({ message: "Email or password is wrong" });
-        }
         
         try{
             //Login and create session
@@ -93,11 +95,11 @@ const userController = {
     },
 
     getCurrentUser: async(req, res) => {
-        const userModel = new UserModel();
         if(!req.cookies.sb_access_token){
             return res.status(401).json({message: 'unable to authorize user'});
         }
-
+        
+        const userModel = new UserModel();
         const access_token = req.cookies.sb_access_token
 
         try{

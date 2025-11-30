@@ -4,7 +4,7 @@ import supabase from '../supabase.js';
 const router = e.Router();
 
 /**
- * Fetch all costumes from other users
+ * Fetch all posted costumes
  */
 router.get(`/fetchAllItems`, async (req, res) => {
     const searchParam = req.query.search;

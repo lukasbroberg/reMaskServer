@@ -19,15 +19,15 @@ app.use(cors({
 app.use(e.json()); //To parse json objects on requests
 app.use(cookieParser()); //To parse cookies
 
-//Trading routes
 //app.use(authMiddleware); //Fjern kommentar, når den skal bruges
-app.use('/user', userRoutes)
-app.use('/chat', chatRoutes)
-app.use('/trades', tradeRoutes)
+app.use('/user', userRoutes);
+app.use('/chat', chatRoutes);
+app.use('/trades', tradeRoutes);
 app.use('/items', itemRouter);
 app.use('/inventory', inventoryRouter);
 app.use('/ratings', ratingRoutes);
 
+/* not in use
 async function authMiddleware(req, res, next) {
     
     const token = req.cookies.sb_access_token;
@@ -44,52 +44,7 @@ async function authMiddleware(req, res, next) {
     req.user = data.user;
     next();
 }
-
-
-app.delete('/deleteItem/:itemId', async (req, res) => {
-    
-    const itemId = req.params.itemId;
-    console.log(itemId)
-    //validate user id and that the user owns the item
-
-    const {data, error} = await supabase
-    .from('items')
-    .delete()
-    .eq('id', itemId);
-
-    if (error) {
-        console.log(error);
-        return res.json({
-            success: false, message: "Ikke muligt at slette opslag"
-        });
-
-    }
-
-    return res.json({
-        success: true, message: "Opslag er blevet slettet"
-    });
-})
-
-
-
-app.put('/updateItem/:itemId', async (req, res) => {
-    const itemId = req.params.itemId;
-    const {name, description, size}=req.body;
-
-    const {data, error} = await supabase
-        .from('items')
-        .update({
-            item_name: name,
-            item_description: description,
-            item_size: size
-        })
-        .eq('id', itemId)
-    if (error) {
-        console.log(error);
-        return res.json({success: false, message: "kunne ikke updatere opslag"});
-    }  
-    return res.json({success: true, message: "Opslag er blevet opdateret."})  
-});
+*/
 
 /**
  * Start server

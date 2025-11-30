@@ -59,7 +59,14 @@ const TradeController = {
     },
 
     getInboundOffersFromUserId: async(req, res) => {
-        const userId = req.cookies.userId; //req.session.id... todo later
+        
+        if(!req.cookies.userId){
+            return res
+            .status(401)
+            .json({message: 'User is not signed in'})
+        }
+
+        const userId = req.cookies.userId; 
         const tradeModel = new TradeModel();
         try{
             const inboundTrades = await tradeModel.selectInboundFromUserId(userId);
@@ -71,6 +78,13 @@ const TradeController = {
     },
 
     getOutboundOffersFromUserId: async(req, res) => {
+        
+        if(!req.cookies.userId){
+            return res
+            .status(401)
+            .json({success: false, message: 'User is not signed'})
+        }
+
         const userId = req.cookies.userId; //req.session.id... todo later
         const tradeModel = new TradeModel();
         try{
@@ -82,23 +96,31 @@ const TradeController = {
     },
 
     acceptOffer: async(req, res) => {
-        /**
-         * TODO: Verify its the correct user
-         */
+        
+        if(!req.params.tradeId){
+            return res
+            .status(401)
+            .json({success: false, message: 'Trade doesnt exist'})
+        }
+
         const tradeId = req.params.tradeId;
         const tradeModel = new TradeModel();
         try{
             const acceptRequest = await tradeModel.acceptTrade(tradeId);
             return res.json({success: true, message: 'Accepted trade offer'});
         }catch(error){
-            res.json({success: false, message: 'unable to update tradeoffer'})
+            return res
+            .status(400)
+            .json({success: false, message: 'unable to update tradeoffer'})
         }
     },
 
     declineOffer: async(req, res) => {
-        /**
-         * TODO: Verify its the correct user
-         */
+        if(!req.params.tradeId){
+            return res
+            .status(401)
+            .json({success: false, message: 'Trade doesnt exist'})
+        }
 
         const tradeId = req.params.tradeId;
         const tradeModel = new TradeModel();
@@ -115,6 +137,12 @@ const TradeController = {
         /**
          * TODO: Verify its the correct user
          */
+
+        if(!req.params.tradeId){
+            return res
+                .status(422)
+                .json({message: 'No trade id'})
+        }
         const tradeId = req.params.tradeId;
         const tradeModel = new TradeModel();
 
@@ -122,11 +150,19 @@ const TradeController = {
             const deleteRequest = await tradeModel.deleteTrade(tradeId);
             return res.json({success: true, message: 'trade offer deleted'});
         }catch(error){
-            return res.json({success: false, message: 'unable to delete trade offer'})
+            return res
+            .status(400)
+            .json({success: false, message: 'unable to delete trade offer'})
         }
     },
 
     confirmReceivedTrades: async(req, res) => {
+        if(!req.cookies.userId || !req.params.tradeId){
+            return res
+                .status(400)
+                .json({message: 'User is not signed in'})
+        }
+
         const userId = req.cookies.userId;
         const tradeId = req.params.tradeId; //req.session.id... todo later
         const tradeModel = new TradeModel();

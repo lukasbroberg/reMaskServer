@@ -36,4 +36,14 @@ router.get('/getItem/:itemId', async (req, res) => {
     await inventoryController.fetchItemOnId(req, res);
 })
 
+//Update item from inventory
+router.put('/updateItem/:itemId', async(req, res) => {
+    await inventoryController.updateItemOnId(req, res);
+})
+
+//Delete item from inventory
+router.delete('/deleteItem/:itemId', async(req, res) => {
+    await inventoryController.deleteItemOnId(req, res);    
+})
+
 export const inventoryRouter = router;

@@ -1,16 +1,25 @@
 import InventoryModel from "../model/InventoryModel.js"
-import supabase from "../supabase.js";
 
 const inventoryController = {
+    /** Inserts a new item to the inventory
+     * 
+     * @param {*} req 
+     * @param {*} res 
+     * @returns 
+     */
     addItemToInventory: async (req, res) => {
-        console.log(req.cookies);
 
+        //Early exit due to missing data
         if(req.cookies.inventoryId==null || req.cookies.userId==null || req.cookies.sb_access_token==null){
             console.log("error")
-            return res.status(401).json({message: 'user needs to be signed in to upload costumes'});
+            return res
+                .status(401)
+                .json({message: 'user needs to be signed in to upload costumes'});
         }
 
-        console.log(req.body)
+        if(!req.file){
+            return res.status(422).json({message: 'Unable to find image'})
+        }
 
         const {name, description, size} = req.body;
         const imageFile = req.file; // Multer adds the file to req.file
@@ -39,8 +48,11 @@ const inventoryController = {
     
     fetchUserItems: async(req,res) => {
 
+        //Early exit due to missing data
         if(!req.cookies.userId){
-            return res.status(401).json({success: false, message: 'unable to authorize user'});
+            return res
+                .status(401)
+                .json({success: false, message: 'unable to authorize user'});
         }
 
         const userId = req.cookies.userId
@@ -57,7 +69,15 @@ const inventoryController = {
     },
 
     fetchInventoryItems: async (req, res) => {
+        //Early exit due to missing data
+        if(!req.params.inventoryId){
+            return res
+                .status(400)
+                .json({success: false, message: 'unable to get users costumes'})
+        }
+
         const inventoryId = req.params.inventoryId;
+
 
         var inventoryModel = new InventoryModel();
 
@@ -65,13 +85,17 @@ const inventoryController = {
             const inventoryItems = await inventoryModel.selectUserItemsFromId(inventoryId);
             return res.json({ success: true, items: inventoryItems });
         }catch(error){
-            console.log(error)
             return res.json({success: false, message: 'unable to get users costumes'})
         }
     },
 
     fetchItemOnId: async (req, res) => {
         const itemId = req.params.itemId;
+
+        //Early exit due to missing data
+        if(!itemId){
+            return res.status(400)({ message: 'unable to get item' });
+        }
 
         var inventoryModel = new InventoryModel();
         try {
@@ -80,6 +104,54 @@ const inventoryController = {
         }
         catch (error) {
             return res.status(400)({ message: 'unable to get item' });
+        }
+    },
+
+    updateItemOnId: async(req, res) => {
+        if(!req.params.itemId){
+            return res
+                .status(401)
+                .json({message: 'user is not signed in'})
+        }
+
+        //Early exit due to missing data
+        if(!req.body){
+            return res
+            .status(422)
+            .json({message: "Intet at opdatere"});
+        }
+
+        const itemId = req.params.itemId;
+        const {name, description, size} = req.body;
+        var inventoryModel = new InventoryModel();
+        
+        try{
+            const updateRequest = await inventoryModel.updateItemFromId(itemId, {name, description, size});
+            return res.json({success: true, message: "Opslag er blevet opdateret."})  
+        }catch(error){
+            return res.json({success: false, message: "kunne ikke updatere opslag"});
+        }
+    },
+
+    deleteItemOnId: async(req, res) => {
+        if(!req.params.itemId){
+            return res.json({
+                success: false, message: "Ikke muligt at slette opslag"
+            });
+        }
+
+        const itemId = req.params.itemId;
+
+        var inventoryModel = new InventoryModel();
+        try{
+            const deleteRequest = await inventoryModel.deleteItemOnId(itemId);
+            return res.json({
+                success: true, message: "Opslag er blevet slettet"
+            });
+        }catch(error){
+            return res.json({
+                success: false, message: "Ikke muligt at slette opslag"
+            });
         }
     }
 }
