@@ -49,17 +49,17 @@ const inventoryController = {
     fetchUserItems: async(req,res) => {
 
         //Early exit due to missing data
-        if(!req.cookies.userId){
+        if(!req.cookies.inventoryId){
             return res
                 .status(401)
                 .json({success: false, message: 'unable to authorize user'});
         }
 
-        const userId = req.cookies.userId
+        const inventoryId = req.cookies.inventoryId
 
         var inventoryModel = new InventoryModel();
         try {
-            const userItems = await inventoryModel.selectUserItemsFromId(userId);
+            const userItems = await inventoryModel.selectUserItemsFromInventoryId(inventoryId) //inventoryModel.selectUserItemsFromId(userId);
             return res.json({ success: true, costumes: userItems })
         } catch (error) {
             console.log(error);
@@ -69,6 +69,7 @@ const inventoryController = {
     },
 
     fetchInventoryItems: async (req, res) => {
+        
         //Early exit due to missing data
         if(!req.params.inventoryId){
             return res
@@ -82,7 +83,7 @@ const inventoryController = {
         var inventoryModel = new InventoryModel();
 
         try {
-            const inventoryItems = await inventoryModel.selectUserItemsFromId(inventoryId);
+            const inventoryItems = await inventoryModel.selectAvailableUserItemsFromInventoryId(inventoryId);
             return res.json({ success: true, items: inventoryItems });
         }catch(error){
             return res.json({success: false, message: 'unable to get users costumes'})

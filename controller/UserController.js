@@ -17,7 +17,6 @@ const userController = {
             const signup_request = await userModel.authUserSignUp({email, password})
             const newUserId = await signup_request.user.id;
             new_user = await userModel.insertNewUserOnUserTable({firstName, lastName, studie, UUID: newUserId});
-            console.log(new_user);
         }catch(error){
             console.error("supabase signUp error:", error);
             return res
@@ -55,15 +54,18 @@ const userController = {
 
             //Get user Id
             const userDataFromTable = await userModel.getUserFromAuthUUID(userUUID);
+            //Get inventoryId
+            const inventoryId = await inventoryModel.selectInventoryIdFromUserId(userDataFromTable[0].id);
+            
             const userData = await {
                 id: userDataFromTable[0].id,
+                inventoryId: inventoryId.id,
                 firstName: userDataFromTable[0].firstName,
                 lastName: userDataFromTable[0].lastName,
                 studie: userDataFromTable[0].studie,
+
             };
 
-            //Get inventoryId
-            const inventoryId = await inventoryModel.selectInventoryIdFromUserId(userData.id);
             //Parse cookie with access_token on frontend for user's session 
             return res
                 .cookie("sb_access_token", userLogin_request.session.access_token, {
@@ -96,23 +98,27 @@ const userController = {
 
     getCurrentUser: async(req, res) => {
         if(!req.cookies.sb_access_token){
-            return res.status(401).json({message: 'unable to authorize user'});
+            return res.status(401).json({message: 'no session'});
         }
         
         const userModel = new UserModel();
+        const inventoryModel = new InventoryModel();
         const access_token = req.cookies.sb_access_token
-
+        
         try{
-
+            
             const data = await userModel.getCurrentUser(access_token);
             const userUUID = data.user.id
             const userDataFromTable = await userModel.getUserFromAuthUUID(userUUID);
+            const inventoryId = await inventoryModel.selectInventoryIdFromUserId(userDataFromTable[0].id);
             const userData = await {
                 id: userDataFromTable[0].id,
+                inventoryId: inventoryId.id,
                 firstName: userDataFromTable[0].firstName,
                 lastName: userDataFromTable[0].lastName,
                 studie: userDataFromTable[0].studie,
             };
+
 
 
             return res
@@ -128,8 +134,15 @@ const userController = {
                     sameSite: 'lax',
                     maxAge: 1000 * 60 * 60 // 1 time
                 })
+                .cookie("inventoryId", inventoryId.id, {
+                    httpOnly: true,
+                    secure: false, // Set to true if using HTTPS
+                    sameSite: 'lax',
+                    maxAge: 1000 * 60 * 60 // 1 time
+                })
                 .json({success: true, user: userData});
         }catch(error){
+            console.log("error")
             return res.status(401).json({message: 'unable to authorize user'});
         }
 

@@ -45,9 +45,6 @@ class InventoryModel {
     }
 
     async addItemToInventory(item, inventoryId) {
-
-
-
         var { name, description, size, imageUrl } = item;
 
         const { data, error } = await supabase
@@ -70,15 +67,28 @@ class InventoryModel {
         console.log(data)
     }
 
-    async selectUserItemsFromId(userId) {
+    async selectUserItemsFromInventoryId(inventoryId) {
         let { data: items, error } = await supabase
-            .from('user_items')
+            .from('costumes')
             .select()
-            .eq('owner', userId);
+            .eq('inventory_id', inventoryId);
         if(error){
             console.log(error.message)
             throw new Error(error.message);
-            
+        }
+
+        return items;
+    }
+
+    async selectAvailableUserItemsFromInventoryId(inventoryId){
+        let { data: items, error } = await supabase
+            .from('costumes')
+            .select()
+            .neq('is_accepted',true)
+            .eq('inventory_id', inventoryId);
+        if(error){
+            console.log(error.message)
+            throw new Error(error.message);
         }
 
         return items;

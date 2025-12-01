@@ -10,9 +10,11 @@ const TradeController = {
                 .json({success: false, message: 'Unable to create trade offers, when user is not signed in.'});
         }
 
+
         const requestedItemId = req.params.requestedItemId;
         const user_fromId = req.cookies.userId;
         const {offerItems, toInventory} = req.body;
+
         
         const inventoryModel = new InventoryModel();
         const tradeModel = new TradeModel();
@@ -42,6 +44,8 @@ const TradeController = {
         const tradeId = requestNewTrade[0].id;
 
         //Insert all offered items in trade
+
+        console.log(offerItems);
         for(var i=0; i<offerItems.length; i++){
             console.log(offerItems[i]);
             try{
@@ -54,7 +58,17 @@ const TradeController = {
         }
 
         //Insert the requested item in trade
-        const insertItemRequest_receive = await tradeModel.insertNewTradeItem(requestedItemId,"receive",tradeId);
+        try{
+            console.log(requestedItemId);
+            const insertItemRequest_receive = await tradeModel.insertNewTradeItem(requestedItemId,"receive",tradeId);
+            console.log("Insert succesful");
+        }catch(err){
+            console.log(err);
+            return res
+            .status(400)
+            .json({message: 'Unable to create trade offer'});
+        }
+
         return res.json({success: true, message: 'Offer created'});
     },
 

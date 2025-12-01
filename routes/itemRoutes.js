@@ -7,12 +7,14 @@ const router = e.Router();
  * Fetch all posted costumes
  */
 router.get(`/fetchAllItems`, async (req, res) => {
+
     const searchParam = req.query.search;
     
     if(!searchParam){
         let { data: items, error } = await supabase
             .from('costumes')
             .select()
+            .neq('is_accepted',true)
         
         if (error) {
             console.log(error);

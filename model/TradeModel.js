@@ -39,7 +39,7 @@ class TradeModel{
 
     async selectInboundFromUserId(userId){
         const {data, error} = await supabase
-        .from('tradeoffer_items_view')
+        .from('trade_items_overview')
         .select()
         .eq('user_to',userId);
     
