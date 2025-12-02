@@ -1,7 +1,12 @@
 import supabase from "../supabase.js";
 
 class InventoryModel {
-    //Create tradeOffer (simplificer det her)
+    
+    /** Selects the foreign key from user id based on inventoryId
+     * 
+     * @param {*} inventoryId 
+     * @returns an integer with the user id
+     */
     async getOwnerIdFromInventoryId(inventoryId) {
         let { data, error } = await supabase
             .from('inventory')
@@ -16,6 +21,11 @@ class InventoryModel {
         return owner
     }
 
+    /** 
+     * 
+     * @param {*} image 
+     * @returns 
+     */
     async addImageToStorage(image) {
         const fileName = `${Date.now()}_${image.originalname}`;
         const { data, error } = await supabase

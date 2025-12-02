@@ -3,6 +3,13 @@ import supabase from '../supabase.js';
 import TradeController from '../controller/TradeController.js';
 const router = e.Router();
 
+
+/** All endpoints for trade-handling
+ *  /InitiateTrade - endpoints for handling creating a new trade
+ *  /ongoing - endpoints for getting not-finished trades
+ *  /confirm - endpoints for getting all confirmations regarding having received the item
+ */ 
+
 router.post('/initiateTrade/:requestedItemId', async(req, res) => {
     await TradeController.initiateTradeOffer(req, res);
 })

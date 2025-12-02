@@ -20,7 +20,7 @@ class TradeModel{
         return data;
     }
 
-    /** Inserts items for a given trade
+    /** Insert trade item for a given trade
      * 
      * @param {*} itemId the id of the item
      * @param {*} type the type: eithe receive or offer
@@ -37,6 +37,11 @@ class TradeModel{
         return 
     }
 
+    /** Selects the given incoming trades for an userId
+     * 
+     * @param {*} userId 
+     * @returns an array trade_items, with corresponding tradeId
+     */
     async selectInboundFromUserId(userId){
         const {data, error} = await supabase
         .from('trade_items_overview')
@@ -50,6 +55,11 @@ class TradeModel{
         return data;
     }
 
+    /** Selects the outgoing trades for a given user
+     * 
+     * @param {*} userId 
+     * @returns An array with trade_items, with corresponding tradeId
+     */
     async selectOutboundFromUserId(userId){
         const {data, error} = await supabase
         .from('trade_items_overview')
@@ -62,6 +72,10 @@ class TradeModel{
         return data;
     }
 
+    /** Updates trade's status to accept
+     * 
+     * @param {*} tradeId 
+     */
     async acceptTrade(tradeId){
         const {data, error} = await supabase
         .from('trades')
@@ -73,6 +87,11 @@ class TradeModel{
         }
     }
 
+    /** Updates trade's status to declined
+     * 
+     * @param {*} tradeId 
+     * @returns 
+     */
     async declineTrade(tradeId){
         const {data, error} = await supabase
         .from('trades')
@@ -85,6 +104,10 @@ class TradeModel{
         return data;
     }
 
+    /** Delete's a given trade from the database
+     * 
+     * @param {*} tradeId 
+     */
     async deleteTrade(tradeId){
         const {data, error} = await supabase
         .from('trades')
@@ -96,6 +119,11 @@ class TradeModel{
         }
     }
 
+    /** Inserts userId and tradeId on trade_items_received
+     * 
+     * @param {*} tradeId 
+     * @param {*} userId 
+     */
     async insertOnTradeReceived(tradeId, userId){
         const {data, error} = await supabase
         .from('trade_items_received')
@@ -106,6 +134,11 @@ class TradeModel{
         }
     }
 
+    /** Selects given user's received_items row
+     * 
+     * @param {*} userId 
+     * @returns an array with with all the trade_receieved for the given user
+     */
     async selectTradeItemsReceived(userId){
         const {data, error} = await supabase
         .from('trade_items_received')
