@@ -125,11 +125,14 @@ class TradeModel{
      * @param {*} userId 
      */
     async insertOnTradeReceived(tradeId, userId){
+        console.log(tradeId);
+        console.log(userId);
         const {data, error} = await supabase
         .from('trade_items_received')
         .insert({tradeId: tradeId, userId: userId})
 
         if(error){
+            console.log(error);
             throw new Error(error.message);
         }
     }

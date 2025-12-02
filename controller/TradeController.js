@@ -177,8 +177,9 @@ const TradeController = {
                 .json({message: 'User is not signed in'})
         }
 
+
         const userId = req.cookies.userId;
-        const tradeId = req.params.tradeId; //req.session.id... todo later
+        const tradeId = req.params.tradeId; 
         const tradeModel = new TradeModel();
         try{
             const confirmReceivedItems_req = await tradeModel.insertOnTradeReceived(tradeId, userId);
