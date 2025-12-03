@@ -7,9 +7,7 @@ const router = e.Router();
 router.post('/start', async (req, res) => {
 
     try {
-        console.log("chat/start body:", req.body);
         const { tradeId } = req.body;
-        console.log("tradeId= ", tradeId, "type= ", typeof tradeId);
 
         // kontroller om der er en trade igang
         /*const { data: trade, error: tradeErr } = await supabase
@@ -28,7 +26,7 @@ router.post('/start', async (req, res) => {
         // finder existerende chat
         const { data: existingChat, error: existingChatErr } = await supabase
             .from('current_chats')
-            .select('id')
+            .select()
             .eq('trade_id', tradeId)
             .maybeSingle();
 
@@ -71,19 +69,38 @@ router.post('/message', async (req, res) => {
         const { chatId, message } = req.body;
         const authorId = req.cookies.userId;
 
-        const { data, error } = await supabase
-            .from('chat_messages')
-            .insert([{
-                chat_id: chatId,
-                author_id: authorId,
-                message,
-            }]);
+        //Ensure chat is active before sending message
+        const {data: chatIsActive_data, error: chatIsActive_Error} = await supabase
+            .from('current_chats')
+            .select('active')
+            .eq('id', chatId)
+            .single();
 
-        if (error) {
+        if(chatIsActive_Error){
             console.error("send message error:", error);
             return res.status(400).json({ message: "Could not send message" });
         }
-        return res.json({ succes: true, message: "Message sent" });
+
+        if(chatIsActive_data.active==false){
+            return res.json({success: false, message: 'chat is not active'})
+        }else{
+            //Send actual message
+            const { data, error } = await supabase
+                .from('chat_messages')
+                .insert([{
+                    chat_id: chatId,
+                    author_id: authorId,
+                    message,
+                }]);
+    
+            if (error) {
+                console.error("send message error:", error);
+                return res.status(400).json({ message: "Could not send message" });
+            }
+            return res.json({ succes: true, message: "Message sent" });
+        }
+        
+
 
     } catch (err) {
         console.error("chat/message error:", err);

@@ -46,7 +46,8 @@ class TradeModel{
         const {data, error} = await supabase
         .from('trade_items_overview')
         .select()
-        .eq('user_to',userId);
+        .eq('user_to',userId)
+        .order('created_at', {ascending: false});
     
         if(error){
             throw new Error(error.message);
@@ -64,7 +65,8 @@ class TradeModel{
         const {data, error} = await supabase
         .from('trade_items_overview')
         .select()
-        .eq('user_from',userId);
+        .eq('user_from',userId)
+        .order('created_at', {ascending: false});
 
         if(error){
             throw new Error(error.message);
@@ -146,7 +148,7 @@ class TradeModel{
         const {data, error} = await supabase
         .from('trade_items_received')
         .select('tradeId')
-        .eq('userId',userId);
+        .eq('userId',userId)
 
         if(error){
             throw new Error(error.message);

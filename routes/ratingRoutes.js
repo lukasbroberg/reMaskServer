@@ -52,6 +52,7 @@ router.post('/', async (req, res) => {
         }]);
 
     if (error) {
+        
         console.error("create rating error:", error);
         return res.status(500).json({ success: false, message: "Could not create rating" });
     }
