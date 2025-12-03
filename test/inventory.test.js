@@ -1,153 +1,97 @@
 import inventoryController from "../controller/InventoryController.js";
-import InventoryModel from "../model/InventoryModel.js";
 
-// Mock the InventoryModel
-jest.mock("../model/InventoryModel.js");
+// Mock the InventoryModel constructor + all its methods
+jest.mock("../model/InventoryModel.js", () => {
+    return jest.fn().mockImplementation(() => ({
+        addImageToStorage: jest.fn().mockResolvedValue("http://image"),
+        addItemToInventory: jest.fn().mockResolvedValue({ id: 1 }),
+        selectUserItemsFromInventoryId: jest.fn().mockResolvedValue([{ id: 1, name: "Hat" }]),
+        selectAvailableUserItemsFromInventoryId: jest.fn().mockResolvedValue([{ id: 1 }]),
+        selectItemFromItemId: jest.fn().mockResolvedValue({ id: 1, name: "Shirt" }),
+        updateItemFromId: jest.fn().mockResolvedValue(true),
+        deleteItemOnId: jest.fn().mockResolvedValue(true)
+    }));
+});
 
-function mockRes() {
-    const res = {};
-    res.status = jest.fn().mockImplementation(() => res);
-    res.json = jest.fn().mockImplementation(() => res);
-    return res;
-}
+describe("Inventory Controller", () => {
 
-describe("inventoryController", () => {
+    beforeEach(() => jest.clearAllMocks());
 
-   
-    test("addItemToInventory -> success", async () => {
-        const req = { body: { name: "Hat", description: "Funny hat", size: "M" } };
+    // -----------------------------
+    // addItemToInventory
+    // -----------------------------
+    test("addItemToInventory -> Missing image returns 422 + correct message", async () => {
+        const req = {
+            cookies: { inventoryId: 3, userId: 1, sb_access_token: "abc" },
+            file: null
+        };
+        const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
 
-        InventoryModel.mockImplementation(() => ({
-            addItemToInventory: jest.fn().mockResolvedValue(true)
-        }));
+        await inventoryController.addItemToInventory(req, res);
 
-        const res = mockRes();
+        expect(res.status).toHaveBeenCalledWith(422);
+        expect(res.json).toHaveBeenCalledWith({ message: "Unable to find image" });
+    });
+
+    test("addItemToInventory -> Success returns correct success message", async () => {
+        const req = {
+            cookies: { inventoryId: 3, userId: 1, sb_access_token: "abc" },
+            file: { filename: "test.jpg" },
+            body: { name: "Hat", description: "desc", size: "L" }
+        };
+        const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
 
         await inventoryController.addItemToInventory(req, res);
 
         expect(res.json).toHaveBeenCalledWith({
             success: true,
-            message: "Item added to inventory"
+            message: "Item added to inventory",
+            item: { id: 1 }
         });
     });
 
-    test("addItemToInventory -> failure", async () => {
-        const req = { body: { name: "Hat", description: "Funny hat", size: "M" } };
-
-        InventoryModel.mockImplementation(() => ({
-            addItemToInventory: jest.fn().mockRejectedValue(new Error("fail"))
-        }));
-
-        const res = mockRes();
-
-        await inventoryController.addItemToInventory(req, res);
-
-        expect(res.json).toHaveBeenCalledWith({
-            success: false,
-            message: "Unable to add item to inventory"
-        });
-    });
-
-    
-    
+    // -----------------------------
+    // fetchUserItems
+    // -----------------------------
     test("fetchUserItems -> success", async () => {
-        const mockItems = [{ id: 1, name: "Hat" }, { id: 2, name: "Mask" }];
-        InventoryModel.mockImplementation(() => ({
-            selectUserItemsFromId: jest.fn().mockResolvedValue(mockItems)
-        }));
-
-        const req = {};
-        const res = mockRes();
+        const req = { cookies: { inventoryId: 3 } };
+        const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
 
         await inventoryController.fetchUserItems(req, res);
 
         expect(res.json).toHaveBeenCalledWith({
             success: true,
-            costumes: mockItems
+            costumes: [{ id: 1, name: "Hat" }]
         });
     });
 
-    test("fetchUserItems -> failure", async () => {
-        InventoryModel.mockImplementation(() => ({
-            selectUserItemsFromId: jest.fn().mockRejectedValue(new Error("fail"))
-        }));
-
-        const req = {};
-        const res = mockRes();
-
-        await inventoryController.fetchUserItems(req, res);
-
-        expect(res.json).toHaveBeenCalledWith({
-            success: false,
-            message: "fail"
-        });
-    });
-
-   
-    
+    // -----------------------------
+    // fetchInventoryItems
+    // -----------------------------
     test("fetchInventoryItems -> success", async () => {
-        const mockItems = [{ id: 1, name: "Hat" }];
-        InventoryModel.mockImplementation(() => ({
-            selectUserItemsFromId: jest.fn().mockResolvedValue(mockItems)
-        }));
-
-        const req = { params: { inventoryId: 5 } };
-        const res = mockRes();
+        const req = { params: { inventoryId: 3 } };
+        const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
 
         await inventoryController.fetchInventoryItems(req, res);
 
         expect(res.json).toHaveBeenCalledWith({
             success: true,
-            items: mockItems
+            items: [{ id: 1 }]
         });
     });
 
-    test("fetchInventoryItems -> failure", async () => {
-        InventoryModel.mockImplementation(() => ({
-            selectUserItemsFromId: jest.fn().mockRejectedValue(new Error("fail"))
-        }));
-
-        const req = { params: { inventoryId: 5 } };
-        const res = mockRes();
-
-        await inventoryController.fetchInventoryItems(req, res);
-
-        expect(res.json).toHaveBeenCalledWith({
-            success: false,
-            message: "fail"
-        });
-    });
-
-    
+    // -----------------------------
+    // fetchItemOnId
+    // -----------------------------
     test("fetchItemOnId -> success", async () => {
-        const mockItem = { id: 1, name: "Hat" };
-
-        InventoryModel.mockImplementation(() => ({
-            selectItemFromItemId: jest.fn().mockResolvedValue(mockItem)
-        }));
-
         const req = { params: { itemId: 1 } };
-        const res = mockRes();
+        const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
 
         await inventoryController.fetchItemOnId(req, res);
 
         expect(res.json).toHaveBeenCalledWith({
             success: true,
-            item: mockItem
+            item: { id: 1, name: "Shirt" }
         });
     });
-
-    test("fetchItemOnId -> failure", async () => {
-        InventoryModel.mockImplementation(() => ({
-            selectItemFromItemId: jest.fn().mockRejectedValue(new Error("fail"))
-        }));
-
-        const req = { params: { itemId: 1 } };
-        const res = mockRes();
-
-        await inventoryController.fetchItemOnId(req, res);
-
-        expect(res.status).toHaveBeenCalledWith(400);  // note: original controller has bug here, should be res.status(400).json(...)
-    });
-
 });

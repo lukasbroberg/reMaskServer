@@ -104,7 +104,7 @@ const inventoryController = {
             return res.json({ success: true, item: item });
         }
         catch (error) {
-            return res.status(400)({ message: 'unable to get item' });
+            return res.status(400)({ message: "unable to get item" });
         }
     },
 

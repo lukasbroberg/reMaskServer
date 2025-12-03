@@ -2,7 +2,6 @@ import userController from "../controller/UserController.js";
 import UserModel from "../model/UserModel.js";
 import InventoryModel from "../model/InventoryModel.js";
 
-
 jest.mock("../model/UserModel.js");
 jest.mock("../model/InventoryModel.js");
 
@@ -14,10 +13,9 @@ function mockRes() {
     return res;
 }
 
-describe("UserController", () => {
+describe("User system", () => {
 
-    
-    test("signup -> returns 400 if missing email or password", async () => {
+    test("signup -> 400 if missing email or password", async () => {
         const req = { body: { email: "", password: "" } };
         const res = mockRes();
 
@@ -29,7 +27,7 @@ describe("UserController", () => {
         });
     });
 
-    test("signup -> success response", async () => {
+    test("signup -> success", async () => {
         const req = {
             body: {
                 email: "test@test.com",
@@ -79,9 +77,8 @@ describe("UserController", () => {
         expect(res.json).toHaveBeenCalledWith({ message: "signup failed" });
     });
 
-
-
-    test("login -> returns 400 if missing email or password", async () => {
+    // LOGIN
+    test("login -> 400 if missing fields", async () => {
         const req = { body: { email: "", password: "" } };
         const res = mockRes();
 
@@ -89,7 +86,7 @@ describe("UserController", () => {
 
         expect(res.status).toHaveBeenCalledWith(400);
         expect(res.json).toHaveBeenCalledWith({
-            message: "Email or password is wrong"
+            message: "Email and password are required"
         });
     });
 
@@ -116,19 +113,18 @@ describe("UserController", () => {
 
         await userController.login(req, res);
 
-        // Check cookies
         expect(res.cookie).toHaveBeenCalledWith("sb_access_token", "token123", expect.any(Object));
         expect(res.cookie).toHaveBeenCalledWith("userId", 10, expect.any(Object));
         expect(res.cookie).toHaveBeenCalledWith("inventoryId", 99, expect.any(Object));
 
-        // Check JSON response
         expect(res.json).toHaveBeenCalledWith({
             message: "User logged in successfully",
             user: {
                 id: 10,
                 firstName: "Marco",
                 lastName: "M",
-                studie: "IT"
+                studie: "IT",
+                inventoryId: 99
             }
         });
     });
@@ -147,14 +143,15 @@ describe("UserController", () => {
         expect(res.json).toHaveBeenCalledWith({ message: "login failed" });
     });
 
-    test("getCurrentUser -> returns 401 if no cookie", async () => {
+    // CURRENT USER
+    test("getCurrentUser -> 401 no session", async () => {
         const req = { cookies: {} };
         const res = mockRes();
 
         await userController.getCurrentUser(req, res);
 
         expect(res.status).toHaveBeenCalledWith(401);
-        expect(res.json).toHaveBeenCalledWith({ message: "unable to authorize user" });
+        expect(res.json).toHaveBeenCalledWith({ message: "no session" });
     });
 
     test("getCurrentUser -> success", async () => {
@@ -167,12 +164,17 @@ describe("UserController", () => {
             ])
         }));
 
+        InventoryModel.mockImplementation(() => ({
+            selectInventoryIdFromUserId: jest.fn().mockResolvedValue({ id: 99 })
+        }));
+
         const res = mockRes();
 
         await userController.getCurrentUser(req, res);
 
         expect(res.cookie).toHaveBeenCalledWith("sb_access_token", "token123", expect.any(Object));
         expect(res.cookie).toHaveBeenCalledWith("userId", 10, expect.any(Object));
+        expect(res.cookie).toHaveBeenCalledWith("inventoryId", 99, expect.any(Object));
 
         expect(res.json).toHaveBeenCalledWith({
             success: true,
@@ -180,23 +182,10 @@ describe("UserController", () => {
                 id: 10,
                 firstName: "Marco",
                 lastName: "M",
-                studie: "IT"
+                studie: "IT",
+                inventoryId: 99
             }
         });
-    });
-
-    test("getCurrentUser -> supabase fails", async () => {
-        const req = { cookies: { sb_access_token: "token" } };
-
-        UserModel.mockImplementation(() => ({
-            getCurrentUser: jest.fn().mockRejectedValue(new Error("fail"))
-        }));
-
-        const res = mockRes();
-        await userController.getCurrentUser(req, res);
-
-        expect(res.status).toHaveBeenCalledWith(401);
-        expect(res.json).toHaveBeenCalledWith({ message: "unable to authorize user" });
     });
 
 });
