@@ -36,6 +36,11 @@ class UserModel{
     }
 
     async authUserLogin(email, password){
+
+        if(!email || !password){
+            throw new Error('Email and password are required');
+        }
+
         const { data, error } = await supabase.auth.signInWithPassword({
             email,
             password,
@@ -56,7 +61,7 @@ class UserModel{
 
         if(error){
             console.log(error.message)
-            return new Error(error.message);
+            throw new Error(error.message);
         }
 
         return data;

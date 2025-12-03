@@ -22,27 +22,18 @@ const inventoryController = {
         }
 
         const {name, description, size} = req.body;
-        const imageFile = req.file; // Multer adds the file to req.file
-        const inventoryId = req.cookies.inventoryId
+        const inventoryId = _inventoryId //Todo implementer senere, når vi har session Id fra login
 
         const inventoryModel = new InventoryModel();
-        try {
-            let imageUrl = null;
-            if (imageFile) {
-                imageUrl = await inventoryModel.addImageToStorage(imageFile);
+        try{
+            const addItem = await inventoryModel.addItemToInventory({name, description, size}, inventoryId)
+            if(addItem){
+                return res.json({success: true, message: 'Item added to inventory'});
+                
             }
 
-            //const imageUrl = await inventoryModel.addImageToStorage(image);
-
-            const addItem = await inventoryModel.addItemToInventory({ name, description, size, imageUrl }, inventoryId)
-            return res.json({ success: true, message: 'Item added to inventory', item: addItem });
-
-
-        } catch (error) {
-            console.error("addItemToInventory error:", error);
-            return res
-                .status(500)
-                .json({ success: false, message: 'Unable to add item to inventory' });
+        }catch(error){
+            return res.json({success: false, message: 'Unable to add item to inventory'});
         }
     },
     
@@ -61,9 +52,9 @@ const inventoryController = {
         try {
             const userItems = await inventoryModel.selectUserItemsFromInventoryId(inventoryId) //inventoryModel.selectUserItemsFromId(userId);
             return res.json({ success: true, costumes: userItems })
-        } catch (error) {
+        }catch(error){
             console.log(error);
-            return res.json({ success: false, message: error.message });
+            return res.json({success: false, message: error.message});
         }
 
     },
@@ -90,7 +81,7 @@ const inventoryController = {
         }
     },
 
-    fetchItemOnId: async (req, res) => {
+    fetchItemOnId: async(req, res) => {
         const itemId = req.params.itemId;
 
         //Early exit due to missing data
@@ -99,12 +90,12 @@ const inventoryController = {
         }
 
         var inventoryModel = new InventoryModel();
-        try {
+        try{
             const item = await inventoryModel.selectItemFromItemId(itemId);
-            return res.json({ success: true, item: item });
+            return res.json({success: true, item: item});
         }
-        catch (error) {
-            return res.status(400)({ message: 'unable to get item' });
+        catch(error){
+            return res.status(400).json({message: 'unable to get item'});
         }
     },
 

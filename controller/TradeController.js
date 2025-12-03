@@ -21,7 +21,6 @@ const TradeController = {
 
         const user_to = await inventoryModel.getOwnerIdFromInventoryId(toInventory);
         
-        //Early exits
         if(offerItems == []){
             return res.json({success: false, message: 'No items selected'});
         }
@@ -199,6 +198,8 @@ const TradeController = {
             return res.json({success: false, message: 'Unable to confirm received items'});
         }
     }
+
+    
 };
 
 export default TradeController;

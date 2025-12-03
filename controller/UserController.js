@@ -10,6 +10,15 @@ const userController = {
         }
 
         const { email, password, firstName, lastName, studie } = req.body;
+
+        if(!email || !password){
+            return res.status(400).json({message: 'Email and password are required'});
+        }
+
+        if(!firstName || !lastName || !studie){
+            return res.status(400).json({message: 'All fields are required'});
+        }
+
         var new_user = {};
         const userModel = new UserModel()
 
@@ -33,10 +42,15 @@ const userController = {
     login: async (req, res) => {
 
         if(!req.body){
-            return res.status(400).json({ message: "Enter credentials to continue" });
+            return res.status(400).json({ message: "Email and password are required" });
         }
 
         const { email, password } = req.body;
+
+        if(!email || !password){
+            return res.status(400).json({message: "Email and password are required"});
+        }
+
         const userModel = new UserModel();
         const inventoryModel = new InventoryModel();
         
