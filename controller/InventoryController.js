@@ -17,8 +17,12 @@ const inventoryController = {
                 .json({message: 'user needs to be signed in to upload costumes'});
         }
 
+        if(!req.body){
+            return res.status(422).json({message: 'All fields required to upload costume'})
+        }
+
         if(!req.file){
-            return res.status(422).json({message: 'Unable to find image'})
+            return res.status(422).json({message: 'Image is needed to upload costume'})
         }
 
         const {name, description, size} = req.body;

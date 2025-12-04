@@ -30,7 +30,7 @@ describe("Inventory Controller", () => {
         await inventoryController.addItemToInventory(req, res);
 
         expect(res.status).toHaveBeenCalledWith(422);
-        expect(res.json).toHaveBeenCalledWith({ message: "Unable to find image" });
+        expect(res.json).toHaveBeenCalledWith({ message: "All fields required to upload costume" });
     });
 
     test("addItemToInventory -> Success returns correct success message", async () => {
